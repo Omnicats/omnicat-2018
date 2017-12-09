@@ -1,9 +1,8 @@
 package util.motor.basic;
 import com.ctre.CANTalon;
+import edu.wpi.first.wpilibj.Talon;
 
-import edu.wpi.first.wpilibj.*;
-
-public class basicMotor {
+public class BasicMotor {
 	
 	public enum motorType{
 		CANTALON, TALON
@@ -17,7 +16,7 @@ public class basicMotor {
 				break;
 				
 			case TALON:
-				((CANTalon)controller).set(speed);
+				((Talon)controller).set(speed);
 				break;
 		}
 		this.speed = speed;
@@ -51,7 +50,7 @@ public class basicMotor {
 				break;
 				
 			case TALON:
-				((CANTalon)controller).setInverted(inverted);
+				((Talon)controller).setInverted(inverted);
 				break;
 		}	
 	}
@@ -59,11 +58,11 @@ public class basicMotor {
 		return inverted;
 	}
 	
-	public basicMotor(motorType type, int port) {
+	public BasicMotor(motorType type, int port) {
 		this(type, port, false);
 	}
 	
-	public basicMotor(motorType type, int port, boolean inverted) {
+	public BasicMotor(motorType type, int port, boolean inverted) {
 		switch(type) {
 			case CANTALON:
 				setController(new CANTalon(port));
