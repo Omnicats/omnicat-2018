@@ -1,6 +1,7 @@
 package org.usfirst.frc.team1452.robot;
 
 import edu.wpi.first.wpilibj.IterativeRobot;
+import edu.wpi.first.wpilibj.*;
 import edu.wpi.first.wpilibj.smartdashboard.SendableChooser;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 
@@ -16,7 +17,13 @@ public class Robot extends IterativeRobot {
 	final String customAuto = "My Auto";
 	String autoSelected;
 	SendableChooser<String> chooser = new SendableChooser<>();
-
+	Joystick j = new Joystick(0);
+	Talon[] motors = {new Talon(0), new Talon(1), new Talon(2), new Talon(4)};
+	RobotDrive drive;
+	DoubleSolenoid leftShift = new DoubleSolenoid(0,2);
+	DoubleSolenoid rightShift = new DoubleSolenoid(1,4);
+	boolean prevButtonState = false;
+	boolean buttonState = false;
 	/**
 	 * This function is run when the robot is first started up and should be
 	 * used for any initialization code.
@@ -26,6 +33,7 @@ public class Robot extends IterativeRobot {
 		chooser.addDefault("Default Auto", defaultAuto);
 		chooser.addObject("My Auto", customAuto);
 		SmartDashboard.putData("Auto choices", chooser);
+		drive = new RobotDrive(motors[0], motors[2], motors[1], motors[3]);
 	}
 
 	/**
@@ -68,6 +76,19 @@ public class Robot extends IterativeRobot {
 	 */
 	@Override
 	public void teleopPeriodic() {
+		buttonState = j.getRawButton(1);
+		drive.arcadeDrive(j.getY(), j.getX());
+		if(buttonState&&!prevButtonState) {
+			if(leftShift.get().equals(DoubleSolenoid.Value.kForward)) {
+				leftShift.set(DoubleSolenoid.Value.kReverse);
+				rightShift.set(leftShift.get());
+			}
+			else {
+				leftShift.set(DoubleSolenoid.Value.kForward);
+				rightShift.set(leftShift.get());
+			}
+		}
+		prevButtonState = j.getRawButton(1);
 	}
 
 	/**
