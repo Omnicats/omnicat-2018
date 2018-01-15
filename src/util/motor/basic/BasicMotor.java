@@ -1,6 +1,7 @@
 package util.motor.basic;
-import com.ctre.CANTalon;
+import com.ctre.phoenix.motorcontrol.can.WPI_TalonSRX;
 import edu.wpi.first.wpilibj.Talon;
+
 
 public class BasicMotor {
 	
@@ -12,7 +13,7 @@ public class BasicMotor {
 	public void setSpeed(double speed) {
 		switch(type) {
 			case CANTALON:
-				((CANTalon)controller).set(speed);
+				((WPI_TalonSRX)controller).set(speed);
 				break;
 				
 			case TALON:
@@ -46,7 +47,7 @@ public class BasicMotor {
 		this.inverted = inverted;
 		switch(type) {
 			case CANTALON:
-				((CANTalon)controller).setInverted(inverted);
+				((WPI_TalonSRX)controller).setInverted(inverted);
 				break;
 				
 			case TALON:
@@ -65,7 +66,7 @@ public class BasicMotor {
 	public BasicMotor(motorType type, int port, boolean inverted) {
 		switch(type) {
 			case CANTALON:
-				setController(new CANTalon(port));
+				setController(new WPI_TalonSRX(port));
 				break;
 				
 			case TALON:
