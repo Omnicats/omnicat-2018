@@ -18,7 +18,7 @@ public class Robot extends IterativeRobot {
 	String autoSelected;
 	SendableChooser<String> chooser = new SendableChooser<>();
 	Joystick j = new Joystick(0);
-	Talon[] motors = {new Talon(0), new Talon(1), new Talon(2), new Talon(4)};
+	Talon[] motors = {new Talon(0), new Talon(1), new Talon(2), new Talon(3)};
 	DoubleSolenoid leftShift = new DoubleSolenoid(0,2);
 	DoubleSolenoid rightShift = new DoubleSolenoid(1,4);
 	boolean prevButtonState = false;
@@ -74,18 +74,8 @@ public class Robot extends IterativeRobot {
 	 */
 	@Override
 	public void teleopPeriodic() {
-		/*buttonState = j.getRawButton(1);
-		if(buttonState&&!prevButtonState) {
-			if(leftShift.get().equals(DoubleSolenoid.Value.kForward)) {
-				leftShift.set(DoubleSolenoid.Value.kReverse);
-				rightShift.set(leftShift.get());
-			}
-			else {
-				leftShift.set(DoubleSolenoid.Value.kForward);
-				rightShift.set(leftShift.get());
-			}
-		}
-		prevButtonState = j.getRawButton(1);*/
+		motors[2].set(-j.getY());
+		motors[3].set(j.getY());
 	}
 
 	/**
