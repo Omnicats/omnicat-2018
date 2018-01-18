@@ -34,6 +34,13 @@ public class ComplexJoystick {
 		this.prevButtonState = prevButtonState;
 	}
 	
+	public void updateButtonState() {
+		setPrevButtonState(buttonState);
+		for(int i = 0; i < getButtonCount(); i++) {
+			buttonState[i] = getJoystick().getRawButton(i+1);
+		}
+	}
+	
 	public ComplexJoystick(Joystick joystick) {
 		setJoystick(joystick);
 		setButtonCount(getJoystick().getButtonCount());
