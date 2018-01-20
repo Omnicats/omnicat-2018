@@ -1,21 +1,10 @@
 package util.joystick;
 import edu.wpi.first.wpilibj.Joystick;
 
-public class ComplexJoystick {
-	protected Joystick joystick;
-	public Joystick getJoystick() {
-		return joystick;
-	}
-	public void setJoystick(Joystick joystick){
-		this.joystick = joystick;
-	}
-	
-	protected int buttonCount;
-	public int getButtonCount(){
-		return buttonCount;
-	}
-	public void setButtonCount(int buttonCount) {
-		this.buttonCount = buttonCount;
+public class ComplexJoystick extends Joystick{
+	public ComplexJoystick(int port) {
+		super(port);
+		buttonState = new boolean[getButtonCount()];
 	}
 	
 	protected boolean[] buttonState;
@@ -37,13 +26,8 @@ public class ComplexJoystick {
 	public void updateButtonState() {
 		setPrevButtonState(buttonState);
 		for(int i = 0; i < getButtonCount(); i++) {
-			buttonState[i] = getJoystick().getRawButton(i+1);
+			buttonState[i] = getRawButton(i+1);
 		}
-	}
-	
-	public ComplexJoystick(Joystick joystick) {
-		setJoystick(joystick);
-		setButtonCount(getJoystick().getButtonCount());
 	}
 	
 }

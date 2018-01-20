@@ -1,8 +1,8 @@
 package util.motor.basic;
-import com.ctre.phoenix.motorcontrol.can.WPI_TalonSRX;
-import edu.wpi.first.wpilibj.Talon;
 
+import edu.wpi.first.wpilibj.SpeedController;
 
+<<<<<<< HEAD
 public class BasicMotor{
 	
 	public enum motorType{
@@ -25,60 +25,42 @@ public class BasicMotor{
 				((Talon)controller).set(speed);
 				break;
 		}
+=======
+
+public abstract class BasicMotor {
+	
+	protected double speed;
+	public void setSpeed(double speed) {
+>>>>>>> fcc433601ed4965dae4ea98a5ae86d40f0638dff
 		this.speed = speed;
+		controller.set(speed);
 	}
 	public double getSpeed() {
 		return speed;
 	}
 
-	protected Object controller;
-	public void setController(Object controller) {
+	protected SpeedController controller;
+	public void setController(SpeedController controller) {
 		this.controller = controller;
 	}
-	public Object getController() {
+	public SpeedController getController() {
 		return controller;
-	}
-	
-	protected motorType type;
-	public void setType(motorType type) {
-		this.type = type;
-	}
-	public motorType getType() {
-		return type;
 	}
 	
 	protected boolean inverted;
 	public void setInverted(boolean inverted) {
 		this.inverted = inverted;
-		switch(type) {
-			case CANTALON:
-				((WPI_TalonSRX)controller).setInverted(inverted);
-				break;
-				
-			case TALON:
-				((Talon)controller).setInverted(inverted);
-				break;
-		}	
+		controller.setInverted(inverted);
 	}
 	public boolean getInverted() {
 		return inverted;
 	}
 	
-	public BasicMotor(motorType type, int port) {
-		this(type, port, false);
+	public BasicMotor() {
+		this(false);
 	}
 	
-	public BasicMotor(motorType type, int port, boolean inverted) {
-		switch(type) {
-			case CANTALON:
-				setController(new WPI_TalonSRX(port));
-				break;
-				
-			case TALON:
-				setController(new Talon(port));
-				break;
-		}
-		setType(type);
+	public BasicMotor(boolean inverted) {
 		setInverted(inverted);
 	}
 
