@@ -2,36 +2,17 @@ package util.motor.basic;
 
 import edu.wpi.first.wpilibj.SpeedController;
 
-<<<<<<< HEAD
-public class BasicMotor{
-	
-	public enum motorType{
-		CANTALON, TALON
+public abstract class BasicMotor {
+	protected double maxAccel;
+	public void setMaxAccel(double maxAccel) {
+		this.maxAccel = maxAccel;
+	}
+	public double getMaxAccel() {
+		return maxAccel;
 	}
 	
 	protected double speed;
 	public void setSpeed(double speed) {
-		if(speed > 1) {
-			speed = 1;
-		}else if(speed < -1) {
-			speed = -1;
-		}
-		switch(type) {
-			case CANTALON:
-				((WPI_TalonSRX)controller).set(speed);
-				break;
-				
-			case TALON:
-				((Talon)controller).set(speed);
-				break;
-		}
-=======
-
-public abstract class BasicMotor {
-	
-	protected double speed;
-	public void setSpeed(double speed) {
->>>>>>> fcc433601ed4965dae4ea98a5ae86d40f0638dff
 		this.speed = speed;
 		controller.set(speed);
 	}
@@ -63,17 +44,20 @@ public abstract class BasicMotor {
 	public BasicMotor(boolean inverted) {
 		setInverted(inverted);
 	}
-
 		
-	public void rampTo(double target, double increment) {
-		if(Math.abs(getSpeed()-target) <= increment) {
+	public void rampTo(double target, double maxAccel) {
+		if(Math.abs(getSpeed()-target) <= maxAccel) {
 			setSpeed(target);
 		}
 		else if(getSpeed()<target) {
-			setSpeed(getSpeed()+increment);
+			setSpeed(getSpeed()+maxAccel);
 		}
 		else {
-			setSpeed(getSpeed()-increment);
+			setSpeed(getSpeed()-maxAccel);
 		}
+	}
+	
+	public void rampTo(double target) {
+		rampTo(target, maxAccel);
 	}
 }
