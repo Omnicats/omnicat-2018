@@ -71,4 +71,7 @@ public class MotorCluster{
 			motors.get(i).setInverted(inverted);
 		}
 	}
+	public void setInverted(int ...index) {
+		setInverted(true, index);
+	}
 }
