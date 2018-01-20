@@ -1,12 +1,65 @@
 package util.motor.drive;
-import edu.wpi.first.wpilibj.*;
+import java.util.ArrayList;
+import util.motor.basic.BasicMotor;
 
-public class drive {
-	public enum driveType{
-		CANTALON, TALON
+
+public abstract class Drive{	
+	
+	protected double maxAccel;
+	public double getMaxAccel() {
+		return maxAccel;
+	}public void setMaxAccel(double maxAccel) {
+		this.maxAccel = maxAccel;
 	}
-
-	public drive() {
+	
+	protected ArrayList<BasicMotor> leftMotorList;
+	public ArrayList<BasicMotor> getleftMotorList(){
+		return leftMotorList;
+	}public void setleftMotorList(ArrayList<BasicMotor> leftMotorList) {
+		this.leftMotorList = leftMotorList;
+	}
+	
+	protected ArrayList<BasicMotor> rightMotorList;
+	public ArrayList<BasicMotor> getrightMotorList(){
+		return rightMotorList;
+	}public void setrightMotorList(ArrayList<BasicMotor> rightMotorList) {
+		this.rightMotorList = rightMotorList;
+	}
+	
+	protected ArrayList<BasicMotor> motorList;
+	public ArrayList<BasicMotor> getMotorList(){
+		return motorList;
+	}public void setMotorList(ArrayList<BasicMotor> motorList) {
+		this.motorList = motorList;
+	}
+		
+	public void setInverted(boolean isInverted, int ...i) {
+		for(int j : i) {
+			motorList.get(j).setInverted(isInverted);
+		}
+	}public void setInverted(int ...i) {
+		for(int j : i) {
+			motorList.get(j).setInverted(true);
+		}
+	}
+	
+	public Drive (ArrayList<BasicMotor> motorList, double maxAccel) {
+		this.motorList = motorList;
+		leftMotorList = new ArrayList<BasicMotor>();
+		for(int i = 0; i < motorList.size()/2; i++) {
+			leftMotorList.add(motorList.get(i));
+		}
+		rightMotorList = new ArrayList<BasicMotor>();
+		for(int i = motorList.size()/2; i < motorList.size(); i++) {
+			rightMotorList.add(motorList.get(i));
+		}
+		
+		this.maxAccel = maxAccel;
+	}
+	
+	public void update(double targetSpeed, double turnSpeed) {
 		
 	}
+	
+
 }

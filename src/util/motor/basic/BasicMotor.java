@@ -3,7 +3,7 @@ import com.ctre.phoenix.motorcontrol.can.WPI_TalonSRX;
 import edu.wpi.first.wpilibj.Talon;
 
 
-public class BasicMotor {
+public class BasicMotor{
 	
 	public enum motorType{
 		CANTALON, TALON
@@ -11,6 +11,11 @@ public class BasicMotor {
 	
 	protected double speed;
 	public void setSpeed(double speed) {
+		if(speed > 1) {
+			speed = 1;
+		}else if(speed < -1) {
+			speed = -1;
+		}
 		switch(type) {
 			case CANTALON:
 				((WPI_TalonSRX)controller).set(speed);
