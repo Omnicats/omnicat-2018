@@ -4,7 +4,7 @@ import edu.wpi.first.wpilibj.Joystick;
 public class ComplexJoystick extends Joystick{
 	public ComplexJoystick(int port) {
 		super(port);
-		// TODO Auto-generated constructor stub
+		buttonState = new boolean[getButtonCount()];
 	}
 	
 	protected boolean[] buttonState;
