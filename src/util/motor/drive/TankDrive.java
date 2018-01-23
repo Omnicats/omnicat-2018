@@ -6,9 +6,12 @@ import util.motor.basic.BasicMotor;
 
 public class TankDrive extends Drive {
 
-	public TankDrive(ArrayList<BasicMotor> motorList, double maxAccel) {
-		super(motorList, maxAccel);
-		// TODO Auto-generated constructor stub
+	public TankDrive(double maxAccel, ArrayList<BasicMotor> motorList) {
+		super(maxAccel, motorList);
+	}
+	
+	public TankDrive(double maxAccel, BasicMotor... motors) {
+		super(maxAccel, motors);
 	}
 	
 	public void update(double leftTargetSpeed, double rightTargetSpeed) {

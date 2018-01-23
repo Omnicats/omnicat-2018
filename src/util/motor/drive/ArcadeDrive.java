@@ -4,8 +4,12 @@ import util.motor.basic.BasicMotor;
 
 public class ArcadeDrive extends Drive {
 
-	public ArcadeDrive(ArrayList<BasicMotor> motorList, double increment) {
-		super(motorList, increment);
+	public ArcadeDrive(double maxAccel, ArrayList<BasicMotor> motorList) {
+		super(maxAccel, motorList);
+	}
+	
+	public ArcadeDrive(double maxAccel, BasicMotor... motors) {
+		super(maxAccel, motors);
 	}
 	
 	public void update(double targetSpeed, double targetTurn) {

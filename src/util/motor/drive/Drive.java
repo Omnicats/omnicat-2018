@@ -1,5 +1,7 @@
 package util.motor.drive;
 import java.util.ArrayList;
+import java.util.Arrays;
+
 import util.motor.basic.BasicMotor;
 
 
@@ -43,7 +45,7 @@ public abstract class Drive{
 		}
 	}
 	
-	public Drive (ArrayList<BasicMotor> motorList, double maxAccel) {
+	public Drive(double maxAccel, ArrayList<BasicMotor> motorList) {
 		this.motorList = motorList;
 		leftMotorList = new ArrayList<BasicMotor>();
 		for(int i = 0; i < motorList.size()/2; i++) {
@@ -55,6 +57,10 @@ public abstract class Drive{
 		}
 		
 		this.maxAccel = maxAccel;
+	}
+	
+	public Drive(double maxAccel, BasicMotor ...motors) {
+		this(maxAccel, (ArrayList<BasicMotor>) Arrays.asList(motors));
 	}
 	
 	public void update(double targetSpeed, double turnSpeed) {
