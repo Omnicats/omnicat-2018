@@ -4,6 +4,7 @@ import edu.wpi.first.wpilibj.IterativeRobot;
 import edu.wpi.first.wpilibj.*;
 import edu.wpi.first.wpilibj.smartdashboard.SendableChooser;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
+import mechanism.sensor.RangefinderArray;
 
 /**
  * The VM is configured to automatically run this class, and to call the
@@ -19,10 +20,9 @@ public class Robot extends IterativeRobot {
 	SendableChooser<String> chooser = new SendableChooser<>();
 	Joystick j = new Joystick(0);
 	Talon[] motors = {new Talon(0), new Talon(1), new Talon(2), new Talon(3)};
-	DoubleSolenoid leftShift = new DoubleSolenoid(0,2);
-	DoubleSolenoid rightShift = new DoubleSolenoid(1,4);
-	boolean prevButtonState = false;
-	boolean buttonState = false;
+	//DoubleSolenoid leftShift = new DoubleSolenoid(0,2);
+	//DoubleSolenoid rightShift = new DoubleSolenoid(1,4);
+	RangefinderArray array;
 	/**
 	 * This function is run when the robot is first started up and should be
 	 * used for any initialization code.
@@ -32,6 +32,7 @@ public class Robot extends IterativeRobot {
 		chooser.addDefault("Default Auto", defaultAuto);
 		chooser.addObject("My Auto", customAuto);
 		SmartDashboard.putData("Auto choices", chooser);
+		array = new RangefinderArray(0, 1, 2);
 	}
 
 	/**
@@ -58,6 +59,9 @@ public class Robot extends IterativeRobot {
 	 */
 	@Override
 	public void autonomousPeriodic() {
+		for(int i = 0; i < array.getValues().length; i++) {
+			SmartDashboard.putNumber("Rangefinder " + i, array.getValues()[i]);
+		}
 		switch (autoSelected) {
 		case customAuto:
 			// Put custom auto code here
@@ -74,8 +78,8 @@ public class Robot extends IterativeRobot {
 	 */
 	@Override
 	public void teleopPeriodic() {
-		motors[2].set(-j.getY());
-		motors[3].set(j.getY());
+		//motors[2].set(-j.getY());
+		//motors[3].set(j.getY());
 	}
 
 	/**

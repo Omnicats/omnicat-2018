@@ -1,21 +1,21 @@
 package util.sensor.analog.rangefinder;
 
-import edu.wpi.first.wpilibj.Ultrasonic;
+import edu.wpi.first.wpilibj.AnalogInput;
 
 public class Rangefinder {
-	private Ultrasonic rangefinder;
+	private AnalogInput rangefinder;
 	public boolean inInches = true;
 	
 	public enum Unit{
 		Inches, Millimeters;
 	}
 	
-	public Rangefinder(int port1, int port2) {
-		rangefinder = new Ultrasonic(port1, port2);
+	public Rangefinder(int port) {
+		rangefinder = new AnalogInput(port);
 	}
 	
 	public double getDistanceInches() {
-		return rangefinder.getRangeInches();
+		return getDistanceMM()*25.4;
 	}
 	
 	public void setUnits(Unit unit) {
@@ -31,7 +31,7 @@ public class Rangefinder {
 	}
 	
 	public double getDistanceMM() {
-		return rangefinder.getRangeMM();
+		return rangefinder.getValue()*5;
 	}
 	
 	public double getDistance() {
