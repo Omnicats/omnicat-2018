@@ -4,20 +4,18 @@ import util.sensor.analog.rangefinder.Rangefinder;
 
 public class RangefinderArray {
 	Rangefinder left;
-	Rangefinder center;
 	Rangefinder right;	
 	
-	public RangefinderArray(int leftPort, int centerPort, int rightPort) {
+	public RangefinderArray(int leftPort, int rightPort) {
 		left = new Rangefinder(leftPort);
-		center = new Rangefinder(centerPort);
 		right = new Rangefinder(rightPort);
 	}
 	
 	public double[] getValues() {
-		double[] values = new double[3];
+		double[] values = new double[2];
 		values[0] = left.getDistanceMM();
-		values[1] = center.getDistanceMM();
-		values[2] = right.getDistanceMM();
+		values[1] = right.getDistanceMM();
 		return values;
 	}
+	
 }

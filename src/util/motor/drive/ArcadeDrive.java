@@ -12,6 +12,10 @@ public class ArcadeDrive extends Drive {
 		super(maxAccel, motors);
 	}
 	
+	public ArcadeDrive(double maxAccel, int... motors) {
+		this(maxAccel, BasicMotor.motorsFromInt(motors));
+	}
+	
 	public void update(double targetSpeed, double targetTurn) {
 		for(BasicMotor m : leftMotorList) {
 			m.rampTo(targetSpeed + targetTurn, maxAccel);

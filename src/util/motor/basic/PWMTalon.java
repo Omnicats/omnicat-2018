@@ -6,4 +6,12 @@ public class PWMTalon extends BasicMotor{
 		super(inverted);
 		setController(new Talon(port));
 	}
+	
+	public static PWMTalon[] motorsFromInt(int... ports) {
+		PWMTalon[] motors = new PWMTalon[ports.length];
+		for(int i = 0; i < ports.length; i++) {
+			motors[i] = new PWMTalon(ports[i], false);
+		}
+		return motors;
+	}
 }

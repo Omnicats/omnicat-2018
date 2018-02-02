@@ -23,6 +23,7 @@ public class Robot extends IterativeRobot {
 	//DoubleSolenoid leftShift = new DoubleSolenoid(0,2);
 	//DoubleSolenoid rightShift = new DoubleSolenoid(1,4);
 	RangefinderArray array;
+	PIDController pid;
 	/**
 	 * This function is run when the robot is first started up and should be
 	 * used for any initialization code.
@@ -32,7 +33,7 @@ public class Robot extends IterativeRobot {
 		chooser.addDefault("Default Auto", defaultAuto);
 		chooser.addObject("My Auto", customAuto);
 		SmartDashboard.putData("Auto choices", chooser);
-		array = new RangefinderArray(0, 1, 2);
+		array = new RangefinderArray(0, 1);
 	}
 
 	/**
@@ -78,8 +79,7 @@ public class Robot extends IterativeRobot {
 	 */
 	@Override
 	public void teleopPeriodic() {
-		//motors[2].set(-j.getY());
-		//motors[3].set(j.getY());
+
 	}
 
 	/**

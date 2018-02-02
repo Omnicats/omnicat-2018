@@ -57,6 +57,10 @@ public abstract class BasicMotor {
 		}
 	}
 	
+	public static BasicMotor[] motorsFromInt(int... ports) {
+		return null;
+	};
+	
 	public void rampTo(double target) {
 		rampTo(target, maxAccel);
 	}
