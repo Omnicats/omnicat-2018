@@ -3,8 +3,7 @@ import edu.wpi.first.wpilibj.Talon;
 
 public class PWMTalon extends BasicMotor{
 	public PWMTalon(int port, boolean inverted) {
-		super(inverted);
-		setController(new Talon(port));
+		super(new Talon(port), inverted);
 	}
 	
 	public static PWMTalon[] motorsFromInt(int... ports) {

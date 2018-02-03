@@ -60,7 +60,7 @@ public abstract class Drive{
 	}
 	
 	public Drive(double maxAccel, BasicMotor ...motors) {
-		this(maxAccel, (ArrayList<BasicMotor>) Arrays.asList(motors));
+		this(maxAccel, new ArrayList<BasicMotor>(Arrays.asList(motors)));
 	}
 	
 	public void update(double targetSpeed, double turnSpeed) {

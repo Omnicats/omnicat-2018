@@ -4,7 +4,11 @@ import edu.wpi.first.wpilibj.IterativeRobot;
 import edu.wpi.first.wpilibj.*;
 import edu.wpi.first.wpilibj.smartdashboard.SendableChooser;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
+import mechanism.drive.RangefinderDrive;
 import mechanism.sensor.RangefinderArray;
+import util.motor.basic.BasicMotor;
+import util.motor.basic.PWMTalon;
+import util.motor.drive.ArcadeDrive;
 
 /**
  * The VM is configured to automatically run this class, and to call the
@@ -19,11 +23,7 @@ public class Robot extends IterativeRobot {
 	String autoSelected;
 	SendableChooser<String> chooser = new SendableChooser<>();
 	Joystick j = new Joystick(0);
-	Talon[] motors = {new Talon(0), new Talon(1), new Talon(2), new Talon(3)};
-	//DoubleSolenoid leftShift = new DoubleSolenoid(0,2);
-	//DoubleSolenoid rightShift = new DoubleSolenoid(1,4);
-	RangefinderArray array;
-	PIDController pid;
+	RangefinderDrive drive;
 	/**
 	 * This function is run when the robot is first started up and should be
 	 * used for any initialization code.
@@ -33,7 +33,9 @@ public class Robot extends IterativeRobot {
 		chooser.addDefault("Default Auto", defaultAuto);
 		chooser.addObject("My Auto", customAuto);
 		SmartDashboard.putData("Auto choices", chooser);
-		array = new RangefinderArray(0, 1);
+		System.out.println("hello there");
+		drive = new RangefinderDrive(0, 1, 2, 0.2, PWMTalon.motorsFromInt(0, 1, 2, 3));
+		drive.setInvertedMotor(1);
 	}
 
 	/**
@@ -60,9 +62,6 @@ public class Robot extends IterativeRobot {
 	 */
 	@Override
 	public void autonomousPeriodic() {
-		for(int i = 0; i < array.getValues().length; i++) {
-			SmartDashboard.putNumber("Rangefinder " + i, array.getValues()[i]);
-		}
 		switch (autoSelected) {
 		case customAuto:
 			// Put custom auto code here
@@ -79,7 +78,11 @@ public class Robot extends IterativeRobot {
 	 */
 	@Override
 	public void teleopPeriodic() {
-
+		double[] values = drive.getArray().getValues();
+		for(int i = 0; i < values.length; i++){
+			SmartDashboard.putNumber("Rangefinder " + i, values[i]);
+		}
+		drive.update(j.getY(), j.getX(), j.getRawButton(1));
 	}
 
 	/**

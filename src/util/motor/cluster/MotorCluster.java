@@ -38,7 +38,7 @@ public class MotorCluster{
 		addMotor(motors);
 		this.maxAccel = maxAccel;
 	}
-	
+		
 	public void rampTo(double target, double maxAccel) {
 		if(Math.abs(getSpeed()-target) <= maxAccel) {
 			setSpeed(target);

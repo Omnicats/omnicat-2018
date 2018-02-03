@@ -15,7 +15,7 @@ public class Rangefinder {
 	}
 	
 	public double getDistanceInches() {
-		return getDistanceMM()*25.4;
+		return getDistanceMM()/25.4;
 	}
 	
 	public void setUnits(Unit unit) {

@@ -37,11 +37,12 @@ public abstract class BasicMotor {
 		return inverted;
 	}
 	
-	public BasicMotor() {
-		this(false);
+	public BasicMotor(SpeedController controller) {
+		this(controller, false);
 	}
 	
-	public BasicMotor(boolean inverted) {
+	public BasicMotor(SpeedController controller, boolean inverted) {
+		setController(controller);
 		setInverted(inverted);
 	}
 		
