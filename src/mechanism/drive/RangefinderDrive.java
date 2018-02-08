@@ -5,6 +5,14 @@ import util.motor.basic.BasicMotor;
 import util.motor.drive.ArcadeDrive;
 
 public class RangefinderDrive {
+	public final int THRESHOLD = 6;
+	
+	public enum Mode {
+		P, I, PI;
+	}
+	
+	public final Mode mode = Mode.I;
+	
 	private ArcadeDrive drive;
 	public void setInvertedMotor(int ...port) {
 		drive.setInverted(port);
@@ -33,14 +41,27 @@ public class RangefinderDrive {
 			double leftValue = array.getValues()[0];
 			double centerValue = array.getValues()[1];
 			double rightValue = array.getValues()[2];
-			if(Math.abs(centerValue - leftValue) < 6) {
-				turnSpeed += 0.01;
+			if(mode.equals(Mode.I)) {
+				if(Math.abs(centerValue - leftValue) < THRESHOLD) {
+					turnSpeed -= 0.01;
+				}
+				else if(Math.abs(centerValue - rightValue) < THRESHOLD) {
+					turnSpeed += 0.01;
+				}
+				else {
+					turnSpeed = 0;
+				}
 			}
-			else if(Math.abs(centerValue - rightValue) < 6) {
-				turnSpeed -= 0.01;
-			}
-			else {
-				turnSpeed = 0;
+			else if(mode.equals(Mode.P)) {
+				if(Math.abs(centerValue - leftValue) < THRESHOLD) {
+					turnSpeed = -12/leftValue;
+				}
+				else if(Math.abs(centerValue - rightValue) < THRESHOLD) {
+					turnSpeed = 12/rightValue;
+				}
+				else {
+					turnSpeed = 0;
+				}
 			}
 			drive.update(targetSpeed, turnSpeed);
 		}

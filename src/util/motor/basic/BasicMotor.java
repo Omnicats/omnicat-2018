@@ -3,7 +3,7 @@ package util.motor.basic;
 import edu.wpi.first.wpilibj.SpeedController;
 
 public abstract class BasicMotor {
-	protected double maxAccel;
+	protected double maxAccel = 0.2;
 	public void setMaxAccel(double maxAccel) {
 		this.maxAccel = maxAccel;
 	}

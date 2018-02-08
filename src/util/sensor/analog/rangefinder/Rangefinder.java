@@ -15,7 +15,7 @@ public class Rangefinder {
 	}
 	
 	public double getDistanceInches() {
-		return getDistanceMM()/25.4;
+		return getVoltage()*41.7;
 	}
 	
 	public void setUnits(Unit unit) {
@@ -31,7 +31,11 @@ public class Rangefinder {
 	}
 	
 	public double getDistanceMM() {
-		return rangefinder.getValue()*5;
+		return getDistanceInches()/25.4;
+	}
+	
+	public double getVoltage() {
+		return rangefinder.getVoltage();
 	}
 	
 	public double getDistance() {
