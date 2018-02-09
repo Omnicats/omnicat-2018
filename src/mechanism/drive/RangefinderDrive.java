@@ -11,7 +11,7 @@ public class RangefinderDrive {
 		P, I, PI;
 	}
 	
-	public final Mode mode = Mode.I;
+	public final Mode mode = Mode.P;
 	
 	private ArcadeDrive drive;
 	public void setInvertedMotor(int ...port) {
@@ -54,10 +54,10 @@ public class RangefinderDrive {
 			}
 			else if(mode.equals(Mode.P)) {
 				if(Math.abs(centerValue - leftValue) < THRESHOLD) {
-					turnSpeed = -12/leftValue;
+					turnSpeed = -0.2;
 				}
 				else if(Math.abs(centerValue - rightValue) < THRESHOLD) {
-					turnSpeed = 12/rightValue;
+					turnSpeed = 0.2;
 				}
 				else {
 					turnSpeed = 0;

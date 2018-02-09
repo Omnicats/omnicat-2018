@@ -4,6 +4,7 @@ import edu.wpi.first.wpilibj.IterativeRobot;
 import edu.wpi.first.wpilibj.*;
 import edu.wpi.first.wpilibj.smartdashboard.SendableChooser;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
+import mechanism.Conveyor;
 import mechanism.Mandibles;
 import mechanism.drive.RangefinderDrive;
 import mechanism.sensor.RangefinderArray;
@@ -25,9 +26,7 @@ public class Robot extends IterativeRobot {
 	SendableChooser<String> chooser = new SendableChooser<>();
 	Joystick j = new Joystick(0);
 	RangefinderDrive drive;
-	//Mandibles mandibles;
-	PWMTalon left;
-	PWMTalon right;
+	Conveyor conveyor;
 	/**
 	 * This function is run when the robot is first started up and should be
 	 * used for any initialization code.
@@ -37,10 +36,7 @@ public class Robot extends IterativeRobot {
 		chooser.addDefault("Default Auto", defaultAuto);
 		chooser.addObject("My Auto", customAuto);
 		SmartDashboard.putData("Auto choices", chooser);
-		System.out.println("hello there");
-		left = new PWMTalon(1, false);
-		right = new PWMTalon(2, false);
-		//mandibles = new Mandibles(0.4, PWMTalon.motorsFromInt(1, 2));
+		conveyor = new Conveyor(0.2, PWMTalon.motorsFromInt(0, 1));
 		//drive = new RangefinderDrive(0, 1, 2, 0.2, PWMTalon.motorsFromInt(0, 1, 2, 3));
 		//drive.setInvertedMotor(1);
 	}
@@ -85,14 +81,12 @@ public class Robot extends IterativeRobot {
 	 */
 	@Override
 	public void teleopPeriodic() {
-		left.rampTo(j.getY());
-		right.rampTo(j.getY());
-		//mandibles.rampTo(j.getY());
 		/*double[] values = drive.getArray().getValues();
 		for(int i = 0; i < values.length; i++){
 			SmartDashboard.putNumber("Rangefinder " + i, values[i]);
 		}
 		drive.update(j.getY(), j.getX(), j.getRawButton(1));*/
+		conveyor.rampTo(j.getY());
 	}
 
 	/**
