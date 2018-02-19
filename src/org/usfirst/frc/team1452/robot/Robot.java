@@ -1,12 +1,22 @@
 package org.usfirst.frc.team1452.robot;
 
-import edu.wpi.first.wpilibj.IterativeRobot;
+import org.opencv.core.Mat;
+import org.opencv.core.Rect;
+import org.opencv.imgproc.Imgproc;
+
+import edu.wpi.cscore.CvSink;
+import edu.wpi.cscore.CvSource;
+import edu.wpi.cscore.UsbCamera;
 import edu.wpi.first.wpilibj.*;
 import edu.wpi.first.wpilibj.smartdashboard.SendableChooser;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
+import edu.wpi.first.wpilibj.vision.VisionThread;
 import mechanism.Conveyor;
 import mechanism.Mandibles;
+import mechanism.drive.PIDDrive;
 import mechanism.drive.RangefinderDrive;
+import mechanism.sensor.CubeDetector;
+import mechanism.sensor.GripPipeline;
 import mechanism.sensor.RangefinderArray;
 import util.motor.basic.BasicMotor;
 import util.motor.basic.PWMTalon;
@@ -25,8 +35,11 @@ public class Robot extends IterativeRobot {
 	String autoSelected;
 	SendableChooser<String> chooser = new SendableChooser<>();
 	Joystick j = new Joystick(0);
-	RangefinderDrive drive;
-	Conveyor conveyor;
+	PIDDrive drive;
+	CubeDetector detector;
+	Mandibles mandibles;
+	PWMTalon[] talons;
+	
 	/**
 	 * This function is run when the robot is first started up and should be
 	 * used for any initialization code.
@@ -36,9 +49,10 @@ public class Robot extends IterativeRobot {
 		chooser.addDefault("Default Auto", defaultAuto);
 		chooser.addObject("My Auto", customAuto);
 		SmartDashboard.putData("Auto choices", chooser);
-		conveyor = new Conveyor(0.2, PWMTalon.motorsFromInt(0, 1));
-		//drive = new RangefinderDrive(0, 1, 2, 0.2, PWMTalon.motorsFromInt(0, 1, 2, 3));
-		//drive.setInvertedMotor(1);
+		talons = PWMTalon.motorsFromInt(0, 1, 2);
+		/*detector = new CubeDetector();
+		drive = new PIDDrive(0.6, 0.01, 0.11, new ArcadeDrive(0.2, PWMTalon.motorsFromInt(0, 1, 2, 3)));
+		drive.setInvertedMotor(0, 1, 3);*/
 	}
 
 	/**
@@ -81,12 +95,34 @@ public class Robot extends IterativeRobot {
 	 */
 	@Override
 	public void teleopPeriodic() {
-		/*double[] values = drive.getArray().getValues();
-		for(int i = 0; i < values.length; i++){
-			SmartDashboard.putNumber("Rangefinder " + i, values[i]);
+		/*if(j.getRawButton(1)) {
+			drive.update(j.getY(), j.getX(), (detector.getCenterX()-160)/160, true);
 		}
-		drive.update(j.getY(), j.getX(), j.getRawButton(1));*/
-		conveyor.rampTo(j.getY());
+		else {
+			drive.update(j.getY(), j.getX(), (detector.getCenterX()-160)/160, false);
+		}
+		if(j.getRawButtonPressed(7)) {
+			drive.setKp(drive.getKp() + 0.01);
+		}
+		if(j.getRawButtonPressed(8)) {
+			drive.setKp(drive.getKp() - 0.01);
+		}
+		if(j.getRawButtonPressed(9)) {
+			drive.setKi(drive.getKi() + 0.01);
+		}
+		if(j.getRawButtonPressed(10)) {
+			drive.setKi(drive.getKi() - 0.01);
+		}
+		if(j.getRawButtonPressed(11)) {
+			drive.setKd(drive.getKd() + 0.01);
+		}
+		if(j.getRawButtonPressed(12)) {
+			drive.setKd(drive.getKd() - 0.01);
+		}
+		SmartDashboard.putNumber("CenterXTest", detector.getCenterX());*/
+		talons[0].rampTo(j.getY());
+		talons[1].rampTo(j.getY());
+		talons[2].rampTo(j.getY()/2);
 	}
 
 	/**
