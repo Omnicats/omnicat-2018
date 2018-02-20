@@ -37,17 +37,17 @@ public class Conveyor {
 			t2r.rampTo(0);
 		}
 	}
-	
-	public void rampLeft(double target) {
-		leftSide.rampTo(target);
-	}
-	
-	public void rampRight(double target) {
+		
+	public void rampRotate(double target) {
+		leftSide.rampTo(-target);
 		rightSide.rampTo(target);
 	}
 	
-	public void rampRotate(double target) {
-		leftSide.rampTo(-target);
+	public void leftRampTo(double target) {
+		leftSide.rampTo(target);
+	}
+	
+	public void rightRampTo(double target) {
 		rightSide.rampTo(target);
 	}
 	

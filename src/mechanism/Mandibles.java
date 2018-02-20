@@ -25,13 +25,21 @@ public class Mandibles {
 	}
 	
 	public void rampTo(double target) {
-		leftSide.rampTo(target);
-		rightSide.rampTo(target);
+		leftSide.rampTo(target*Math.abs(target));
+		rightSide.rampTo(target*Math.abs(target));
 	}
 	
 	public void rampRotate(double target) {
 		leftSide.rampTo(-target);
 		rightSide.rampTo(target);
+	}
+	
+	public void leftRampTo(double target) {
+		leftSide.rampTo(target*Math.abs(target));
+	}
+	
+	public void rightRampTo(double target) {
+		rightSide.rampTo(target*Math.abs(target));
 	}
 	
 	public void twoButtonRun(boolean upButton, boolean downButton) {
