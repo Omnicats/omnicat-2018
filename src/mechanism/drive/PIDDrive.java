@@ -9,6 +9,9 @@ public class PIDDrive {
 	public void setInvertedMotor(int ...port) {
 		drive.setInverted(port);
 	}
+	public Drive getDrive() {
+		return drive;
+	}
 	
 	private double kp;
 	public double getKp() {

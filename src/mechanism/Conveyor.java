@@ -8,11 +8,12 @@ public class Conveyor {
 	final double MAX_ROTATE = 0.5;
 	private MotorCluster leftSide;
 	private MotorCluster rightSide;
+	private BasicMotor t2r;
 	
-	public Conveyor(double maxAccel, BasicMotor[] motors) {
-		BasicMotor[] leftMotors = new BasicMotor[motors.length/2];
-		BasicMotor[] rightMotors = new BasicMotor[motors.length/2];
-		for(int i = 0; i < motors.length; i++) {
+	public Conveyor(double maxConveyorAccel, double maxT2rAccel, BasicMotor[] motors) {
+		BasicMotor[] leftMotors = new BasicMotor[(motors.length-1)/2];
+		BasicMotor[] rightMotors = new BasicMotor[(motors.length-1)/2];
+		for(int i = 0; i < motors.length-1; i++) {
 			if(i < leftMotors.length) {
 				leftMotors[i] = motors[i];
 			}
@@ -20,12 +21,28 @@ public class Conveyor {
 				rightMotors[i-rightMotors.length] = motors[i];
 			}
 		}
-		leftSide = new MotorCluster(maxAccel, leftMotors);
-		rightSide = new MotorCluster(maxAccel, rightMotors);
+		leftSide = new MotorCluster(maxConveyorAccel, leftMotors);
+		rightSide = new MotorCluster(maxConveyorAccel, rightMotors);
+		t2r = motors[motors.length-1];
+		t2r.setMaxAccel(maxT2rAccel);
 	}
 	
 	public void rampTo(double target) {
 		leftSide.rampTo(target);
+		rightSide.rampTo(target);
+		if(Math.abs(target)>0.1) {
+			t2r.rampTo(Math.signum(target));
+		}
+		else {
+			t2r.rampTo(0);
+		}
+	}
+	
+	public void rampLeft(double target) {
+		leftSide.rampTo(target);
+	}
+	
+	public void rampRight(double target) {
 		rightSide.rampTo(target);
 	}
 	

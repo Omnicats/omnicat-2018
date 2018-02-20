@@ -15,6 +15,11 @@ public class TankDrive extends Drive {
 	}
 	
 	public void update(double leftTargetSpeed, double rightTargetSpeed) {
+		if(driveReversed) {
+			double temp = leftTargetSpeed;
+			leftTargetSpeed = rightTargetSpeed;
+			rightTargetSpeed = temp;
+		}
 		for(BasicMotor m : leftMotorList) {
 			m.rampTo(leftTargetSpeed, maxAccel);
 		}

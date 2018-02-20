@@ -13,7 +13,10 @@ public class ArcadeDrive extends Drive {
 	}
 		
 	public void update(double targetSpeed, double targetTurn) {
-	    /*targetSpeed = limit(targetSpeed);
+		if(driveReversed) {
+			targetTurn = -targetTurn;
+		}
+		/*targetSpeed = limit(targetSpeed);
 	    targetSpeed = applyDeadband(targetSpeed, m_deadband);
 
 	    targetTurn = limit(targetTurn);

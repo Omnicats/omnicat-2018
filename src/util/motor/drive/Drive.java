@@ -14,6 +14,22 @@ public abstract class Drive{
 		this.maxAccel = maxAccel;
 	}
 	
+	protected boolean driveReversed = false;
+	public boolean getDriveReversed() {
+		return driveReversed;
+	}
+	public void setDriveReversed(boolean driveReversed) {
+		if(this.driveReversed != driveReversed) {
+			for(BasicMotor m : motorList) {
+				m.setInverted(!m.getInverted());
+			}
+		}
+		this.driveReversed = driveReversed;
+	}
+	public void reverseDrive() {
+		setDriveReversed(!getDriveReversed());
+	}
+	
 	protected ArrayList<BasicMotor> leftMotorList;
 	public ArrayList<BasicMotor> getleftMotorList(){
 		return leftMotorList;
@@ -64,7 +80,7 @@ public abstract class Drive{
 	}
 	
 	public void update(double targetSpeed, double turnSpeed) {
-		
+
 	}
 	
 
