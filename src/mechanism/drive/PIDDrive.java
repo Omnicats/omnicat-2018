@@ -1,7 +1,6 @@
 package mechanism.drive;
 
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
-import util.motor.drive.ArcadeDrive;
 import util.motor.drive.Drive;
 
 public class PIDDrive {
@@ -50,19 +49,23 @@ public class PIDDrive {
 	private double previousTime = 0;
 	private double dt = 0;
 	
-	public void update(double targetSpeed, double targetTurn, double error, boolean usePID) {
+	public void arcadeUpdate(double targetSpeed, double targetTurn) {
+		drive.update(targetSpeed + targetTurn, targetSpeed - targetTurn);
+	}
+	
+	public void update(double leftSpeed, double rightSpeed, double error, boolean usePID) {
 		dt = (System.currentTimeMillis() - previousTime)/1000;
 		if(usePID) {
 			i += error/dt;
 			d = -(error - previousError)/dt;
-			drive.update(targetSpeed, kp*error + ki*i + kd*d);
+			arcadeUpdate((leftSpeed + rightSpeed)/2, kp*error + ki*i + kd*d);
 			previousError = error;
 		}
 		else {
 			previousError = 0;
 			i = 0;
 			d = 0;
-			drive.update(targetSpeed, targetTurn);
+			drive.update(leftSpeed*Math.abs(leftSpeed), rightSpeed*Math.abs(rightSpeed));
 			
 		}
 		SmartDashboard.putNumber("P", kp*error);
