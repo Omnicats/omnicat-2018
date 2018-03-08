@@ -11,8 +11,10 @@ import org.opencv.imgproc.Imgproc;
 import edu.wpi.cscore.CvSink;
 import edu.wpi.cscore.CvSource;
 import edu.wpi.cscore.UsbCamera;
+import edu.wpi.cscore.VideoSink;
 import edu.wpi.first.wpilibj.CameraServer;
 import edu.wpi.first.wpilibj.Joystick;
+import edu.wpi.first.wpilibj.Preferences;
 import edu.wpi.first.wpilibj.Threads;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 
@@ -34,67 +36,66 @@ public class CubeDetector {
     
     public CubeDetector(Joystick joystick) {    	
     	this.j = joystick;
-    	UsbCamera camera = CameraServer.getInstance().startAutomaticCapture(0);
-    	camera.setResolution(IMG_WIDTH, IMG_HEIGHT);
-    	camera.setFPS(FPS);
     	
     	visionThread = new Thread(() -> {
-			Threads.setCurrentThreadPriority(true, 5);
-        	UsbCamera camera0 = new UsbCamera ("USB Camera 0", 0);
+        	UsbCamera camera0 = CameraServer.getInstance().startAutomaticCapture(0);
         	camera0.setResolution(IMG_WIDTH, IMG_HEIGHT);
         	camera0.setFPS(FPS);
         	
-        	UsbCamera camera1 = new UsbCamera ("USB Camera 1", 1);
+        	UsbCamera camera1 = CameraServer.getInstance().startAutomaticCapture(1);
         	camera1.setResolution(IMG_WIDTH, IMG_HEIGHT);
         	camera1.setFPS(FPS);
 
-        	CvSink cvSink = CameraServer.getInstance().getVideo(camera0);
-        	CvSource outputStream = CameraServer.getInstance().putVideo("Vision", IMG_WIDTH, IMG_HEIGHT);
-        	outputStream.setFPS(FPS);
+        	CvSink cvSink0 = new CvSink("cam0");
+        	cvSink0.setSource(camera0);
+        	cvSink0.setEnabled(true);
+        	
+        	CvSink cvSink1 = new CvSink("cam1");
+        	cvSink1.setSource(camera1);
+        	cvSink1.setEnabled(true);
+        	
+        	VideoSink server;
+        	server = CameraServer.getInstance().getServer();
         	int cameraRunning = 0;
-        	//Rect r = null;
 			
 			while (!Thread.interrupted()) {
 				if(j.getRawButton(3)){
 					SmartDashboard.putString("camera", "front");
-					cvSink.setSource(camera0);
+					server.setSource(camera0);
 				}
 				else if(j.getRawButton(4)){
 					SmartDashboard.putString("camera", "back");
-					cvSink.setSource(camera1);
+					server.setSource(camera1);
 				}
-				//synchronized(imgLock) {
-					if (cvSink.grabFrame(mat) == 0) {
-						outputStream.notifyError(cvSink.getError());
+				synchronized(imgLock) {
+					if (cvSink0.grabFrame(mat) == 0) {
+						try {
+							Thread.sleep(10);
+						} catch (InterruptedException e) {
+							e.printStackTrace();
+						}
 						continue;
 					}
-					//r = this.r;
-				//}
-				/*if(r != null) {
-					Imgproc.rectangle(mat, new Point(r.x, r.y), new Point(r.x + r.width, r.y + r.height), new Scalar(255, 255, 255), 2);
-				}*/
-				outputStream.putFrame(mat);
+				}
 				cameraRunning++;
 				SmartDashboard.putNumber("Camera Running", cameraRunning);
 				SmartDashboard.putNumber("Running Difference", cameraRunning - SmartDashboard.getNumber("Vision Running", 0));
-				try {
-					Thread.sleep(30);
+				/*try {
+					Thread.sleep(20);
 				} catch (InterruptedException e) {
 					e.printStackTrace();
-				}
+				}*/
 			}
 		});
     	visionThread.setDaemon(true);
-	    //visionThread.start();
+	    visionThread.start();
 	    
 	    processingThread = new Thread(() -> {
-	    	Threads.setCurrentThreadPriority(true, 10);
 			final GripPipeline pipeline = new GripPipeline();
 			Mat mat;
-			//Rect r = null;
+			Preferences prefs = Preferences.getInstance();
 	    	while(!Thread.interrupted()) {
 	    		synchronized(imgLock) {
-	    			//this.r = r;
 	    			mat = this.mat;
 	    		}
 	    		if(mat.height() <= 0) {
@@ -115,14 +116,14 @@ public class CubeDetector {
 	            visionRunning++;
 	            SmartDashboard.putNumber("Vision Running", visionRunning);
 	            try {
-					Thread.sleep(20);
+					Thread.sleep((long) prefs.getDouble("Processing Delay", 50));
 				} catch (InterruptedException e) {
 					e.printStackTrace();
 				}
 	    	}
 	    });
     	processingThread.setDaemon(true);
-	    //processingThread.start();
+	    processingThread.start();
     }
     
     public double getCenterX() {

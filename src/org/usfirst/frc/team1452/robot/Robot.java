@@ -33,10 +33,7 @@ import util.sensor.digital.DigitalEncoder;
  * directory.
  */
 public class Robot extends IterativeRobot {
-	final String defaultAuto = "Default";
-	final String customAuto = "My Auto";
-	String autoSelected;
-	SendableChooser<String> chooser = new SendableChooser<>();
+	SendableChooser<Side> chooser = new SendableChooser<>();
 	Joystick driveJ = new Joystick(0);
 	Joystick mechJ = new Joystick(1);
 	PIDDrive drive;
@@ -63,13 +60,6 @@ public class Robot extends IterativeRobot {
 	Side switchSide;
 	long initialTime;
 	double autoState;
-	/*Trajectory.Config c;
-	Waypoint[] waypoints;
-	Trajectory trajectory;
-	Trajectory leftTrajectory;
-	Trajectory rightTrajectory;
-	
-	int segCounter;*/
 	
 	/**
 	 * This function is run when the robot is first started up and should be
@@ -77,10 +67,10 @@ public class Robot extends IterativeRobot {
 	 */
 	@Override
 	public void robotInit() {
-		chooser.addDefault("Default Auto", defaultAuto);
-		chooser.addObject("My Auto", customAuto);
-		SmartDashboard.putData("Auto choices", chooser);
-		//c = new Trajectory.Config(Trajectory.FitMethod.HERMITE_CUBIC, Trajectory.Config.SAMPLES_HIGH, 1.0/60, 1.7, 2.0, 60.0);
+		chooser.addDefault("Center", Side.CENTER);
+		chooser.addObject("Left", Side.LEFT);
+		chooser.addObject("Right", Side.RIGHT);
+		SmartDashboard.putData("Our side", chooser);
 		drive = new PIDDrive(0.6, 0.01, 0.11, new TankDrive(0.2, CANTalon.motorsFromInt(2, 3, 4, 5)));
 		//testDrive = new TankDrive(0.2, CANTalon.motorsFromInt(2, 3, 4, 5));
 		drive.setInvertedMotor(2, 3);
@@ -99,34 +89,20 @@ public class Robot extends IterativeRobot {
 					+ "small touches may cause the robot to move wildly.", false);
 
 		}
-		//rangefinder = new Rangefinder(1);
-		//drive = new ArcadeDrive(0.2, PWMTalon.motorsFromInt(0, 1, 2, 3));
-		//drive.setInverted(0, 1);
 	}
 
-	/**
-	 * This autonomous (along with the chooser code above) shows how to select
-	 * between different autonomous modes using the dashboard. The sendable
-	 * chooser code works with the Java SmartDashboard. If you prefer the
-	 * LabVIEW Dashboard, remove all of the chooser code and uncomment the
-	 * getString line to get the auto name from the text box below the Gyro
-	 *
-	 * You can add additional auto modes by adding additional comparisons to the
-	 * switch structure below with additional strings. If using the
-	 * SendableChooser make sure to add them to the chooser code above as well.
-	 */
 	@Override
 	public void autonomousInit() {
 		String gameData = DriverStation.getInstance().getGameSpecificMessage();
 		drive.getDrive().setDriveReversed(true);
 		autoState = 0;
+		turnError = 0;
 		gyro.getGyro().reset();
 		leftEncoder.getEncoder().reset();
 		rightEncoder.getEncoder().reset();
 		if(driveMode.equals(Mode.JAMIE_MODE)) {
 			DriverStation.reportWarning("Jamie Mode is enabled. You should be very careful with your inputs, as "
 					+ "small touches may cause the robot to move wildly.", false);
-
 		}
 		if(gameData.length() > 0) {
 			if(gameData.charAt(0) == 'L') {
@@ -136,25 +112,13 @@ public class Robot extends IterativeRobot {
 				switchSide = Side.RIGHT;
 			}
 		}
-		
+		ourSide = chooser.getSelected();
 		//******************************************************************************************************************************
 		//change this every round
-		ourSide = Side.RIGHT;
+		//ourSide = Side.RIGHT;
 		//******************************************************************************************************************************
 		
 		initialTime = System.currentTimeMillis();
-		/*segCounter = 0;
-		waypoints = new Waypoint[] {
-				new Waypoint(0, 2, Math.toRadians(45)),
-				new Waypoint(2, 2, Math.toRadians(90))
-		};
-		trajectory = Pathfinder.generate(waypoints, c);
-		double wheelbaseWidth = 0.65405;
-		TankModifier m = new TankModifier(trajectory);
-		m.modify(wheelbaseWidth);
-		rightTrajectory = m.getRightTrajectory();
-		leftTrajectory = m.getLeftTrajectory();
-		*/
 	}
 
 	/**
@@ -164,162 +128,26 @@ public class Robot extends IterativeRobot {
 	public void autonomousPeriodic() {
 		SmartDashboard.putNumber("left encoder", leftEncoder.getInches());
 		SmartDashboard.putNumber("right encoder", rightEncoder.getInches());
-		if(ourSide.equals(Side.LEFT)) {
-			if(autoState == 0) {
-				drive.update(0.7 - (leftEncoder.getInches() - rightEncoder.getInches())/15 - leftEncoder.getInches()/500, 0.7 - (rightEncoder.getInches() - leftEncoder.getInches())/15 - rightEncoder.getInches()/500, 0, false);
-				if(leftEncoder.getInches() > 148 || rightEncoder.getInches() > 148) {
-					autoState = 0.5;
-					initialTime = System.currentTimeMillis();
-				}
-			}
-			else if(autoState == 0.5) {
-				drive.update(0, 0, 0, false);
-				if(System.currentTimeMillis() - initialTime > 500) {
-					turnError = (rightEncoder.getInches() - leftEncoder.getInches())/2;
-					autoState = 1;
-					leftEncoder.getEncoder().reset();
-					rightEncoder.getEncoder().reset();
-				}
-			}
-			else if(autoState == 1) {
-				//0.55
-				drive.update(0.55 - (leftEncoder.getInches() + rightEncoder.getInches())/25, -0.55 - (rightEncoder.getInches() + leftEncoder.getInches())/25, 0, false);
-				if(leftEncoder.getInches() > 19+turnError || rightEncoder.getInches() < -19-turnError) {
-					autoState = 1.5;
-					initialTime = System.currentTimeMillis();
-				}
-			}
-			else if(autoState == 1.5) {
-				drive.update(0, 0, 0, false);
-				if(System.currentTimeMillis() - initialTime > 500) {
-					leftEncoder.getEncoder().reset();
-					rightEncoder.getEncoder().reset();
-					autoState = 2;
-				}
-			}
-			else if(autoState == 2) {
-				//0.7
-				drive.update(0.5, 0.5, 0, false);
-				if(System.currentTimeMillis() - initialTime > 3000) {
-					autoState = 2.5;
-					initialTime = System.currentTimeMillis();
-				}
-			}
-			else if(autoState == 2.5) {
-				drive.update(0, 0, 0, false);
-				if(System.currentTimeMillis() - initialTime > 500) {
-					initialTime = System.currentTimeMillis();
-					autoState = 3;
-				}
-			}
-			else if(autoState == 3) {
-				drive.update(0, 0, 0, false);
-				if(switchSide.equals(Side.RIGHT)){
-					conveyor.rampTo(-0.6);
-				}
-				if(System.currentTimeMillis() - initialTime > 3000) {
-					autoState = 4;
-				}
-			}
-			else if(autoState == 4) {
-				conveyor.rampTo(0);
-				drive.update(0, 0, 0, false);
-			}
+		if(ourSide.equals(Side.LEFT) && switchSide.equals(Side.LEFT)) {
+			leftStraightAuto();
 		}
-		else if(ourSide.equals(Side.RIGHT)) {
-			if(autoState == 0) {
-				drive.update(0.7 - (leftEncoder.getInches() - rightEncoder.getInches())/15 - leftEncoder.getInches()/500, 0.7 - (rightEncoder.getInches() - leftEncoder.getInches())/15 - rightEncoder.getInches()/500, 0, false);
-				if(leftEncoder.getInches() > 148 || rightEncoder.getInches() > 148) {
-					autoState = 0.5;
-					initialTime = System.currentTimeMillis();
-				}
-			}
-			else if(autoState == 0.5) {
-				drive.update(0, 0, 0, false);
-				if(System.currentTimeMillis() - initialTime > 500) {
-					turnError = (leftEncoder.getInches() - rightEncoder.getInches())/2;
-					autoState = 1;
-					leftEncoder.getEncoder().reset();
-					rightEncoder.getEncoder().reset();
-				}
-			}
-			else if(autoState == 1) {
-				//0.55
-				drive.update(-0.55 - (leftEncoder.getInches() + rightEncoder.getInches())/25, 0.55 - (rightEncoder.getInches() + leftEncoder.getInches())/25, 0, false);
-				if(leftEncoder.getInches() < -19-turnError || rightEncoder.getInches() > 19+turnError) {
-					autoState = 1.5;
-					initialTime = System.currentTimeMillis();
-				}
-			}
-			else if(autoState == 1.5) {
-				drive.update(0, 0, 0, false);
-				if(System.currentTimeMillis() - initialTime > 500) {
-					leftEncoder.getEncoder().reset();
-					rightEncoder.getEncoder().reset();
-					autoState = 2;
-				}
-			}
-			else if(autoState == 2) {
-				//0.7
-				drive.update(0.5, 0.5, 0, false);
-				if(System.currentTimeMillis() - initialTime > 3000) {
-					autoState = 2.5;
-					initialTime = System.currentTimeMillis();
-				}
-			}
-			else if(autoState == 2.5) {
-				drive.update(0, 0, 0, false);
-				if(System.currentTimeMillis() - initialTime > 500) {
-					initialTime = System.currentTimeMillis();
-					autoState = 3;
-				}
-			}
-			else if(autoState == 3) {
-				drive.update(0, 0, 0, false);
-				if(switchSide.equals(Side.RIGHT)){
-					conveyor.rampTo(-0.6);
-				}
-				if(System.currentTimeMillis() - initialTime > 3000) {
-					autoState = 4;
-				}
-			}
-			else if(autoState == 4) {
-				conveyor.rampTo(0);
-				drive.update(0, 0, 0, false);
-			}
+		else if(ourSide.equals(Side.LEFT) && switchSide.equals(Side.RIGHT)) {
+			leftAcrossAuto();
+		}
+		else if(ourSide.equals(Side.RIGHT) && switchSide.equals(Side.RIGHT)) {
+			rightStraightAuto();
+		}
+		else if(ourSide.equals(Side.RIGHT) && switchSide.equals(Side.LEFT)) {
+			rightAcrossAuto();
+		}
+		else if(ourSide.equals(Side.CENTER) && switchSide.equals(Side.LEFT)) {
+			centerLeftAuto();
+		}
+		else if(ourSide.equals(Side.CENTER) && switchSide.equals(Side.RIGHT)) {
+			centerRightAuto();
 		}
 		else {
-			if(System.currentTimeMillis() - initialTime < 3000) {
-				drive.update(0.7, 0.7, 0, false);
-			}
-			else if(System.currentTimeMillis() - initialTime < 6000) {
-				drive.update(0, 0, 0, false);
-				if(switchSide.equals(Side.RIGHT)) {
-					conveyor.rampTo(-0.6);
-				}
-			}
-			else {
-				conveyor.rampTo(0);
-			}
-		}
-	}
-	
-	public void disabledInit() {
-		if(driveMode.equals(Mode.JAMIE_MODE)) {
-			DriverStation.reportWarning("Jamie Mode is enabled. You should be very careful with your inputs, as "
-					+ "small touches may cause the robot to move wildly.", false);
-
-		}
-	}
-	
-	public void disabledPeriodic() {
-		if(driveJ.getRawButtonPressed(5)) {
-			driveMode = Mode.JAMIE_MODE;
-			DriverStation.reportWarning("Jamie Mode is enabled. You should be very careful with your inputs, as "
-					+ "small touches may cause the robot to move wildly.", false);
-		}
-		else if(driveJ.getRawButton(6)) {
-			driveMode = Mode.NORMAL_PERSON_MODE;
+			driveStraightAuto();
 		}
 	}
 
@@ -391,8 +219,6 @@ public class Robot extends IterativeRobot {
 		conveyor.rampTo(Math.abs(mechJ.getThrottle())*mechJ.getThrottle());
 		SmartDashboard.putNumber("left encoder", leftEncoder.getInches());
 		SmartDashboard.putNumber("right encoder", rightEncoder.getInches());
-		SmartDashboard.putNumber("Gyro Angle", gyro.getAngle());
-		SmartDashboard.putNumber("Gyro Rate", gyro.getRate());
 		/*if(driveJ.getRawButtonPressed(11)) {
 			drive.getDrive().reverseDrive();
 		}*/
@@ -410,6 +236,186 @@ public class Robot extends IterativeRobot {
 	 */
 	@Override
 	public void testPeriodic() {
+		
+	}
+	
+	public void disabledInit() {
+		if(driveMode.equals(Mode.JAMIE_MODE)) {
+			DriverStation.reportWarning("Jamie Mode is enabled. You should be very careful with your inputs, as "
+					+ "small touches may cause the robot to move wildly.", false);
+
+		}
+	}
+	
+	public void disabledPeriodic() {
+		if(driveJ.getRawButtonPressed(5)) {
+			driveMode = Mode.JAMIE_MODE;
+			DriverStation.reportWarning("Jamie Mode is enabled. You should be very careful with your inputs, as "
+					+ "small touches may cause the robot to move wildly.", false);
+		}
+		else if(driveJ.getRawButton(6)) {
+			driveMode = Mode.NORMAL_PERSON_MODE;
+		}
+	}
+	
+	public void leftStraightAuto() {
+		if(autoState == 0) {
+			drive.update(0.7 - (leftEncoder.getInches() - rightEncoder.getInches())/15 - leftEncoder.getInches()/1000, 0.7 - (rightEncoder.getInches() - leftEncoder.getInches())/15 - rightEncoder.getInches()/1000, 0, false);
+			if(leftEncoder.getInches() > 148 || rightEncoder.getInches() > 148) {
+				autoState = 0.5;
+				initialTime = System.currentTimeMillis();
+			}
+		}
+		else if(autoState == 0.5) {
+			drive.update(0, 0, 0, false);
+			if(System.currentTimeMillis() - initialTime > 500) {
+				turnError = (rightEncoder.getInches() - leftEncoder.getInches())/2;
+				autoState = 1;
+				leftEncoder.getEncoder().reset();
+				rightEncoder.getEncoder().reset();
+			}
+		}
+		else if(autoState == 1) {
+			//0.55
+			drive.update(0.55 - (leftEncoder.getInches() + rightEncoder.getInches())/25, -0.55 - (rightEncoder.getInches() + leftEncoder.getInches())/25, 0, false);
+			if(leftEncoder.getInches() > 20+turnError || rightEncoder.getInches() < -20-turnError) {
+				autoState = 1.5;
+				initialTime = System.currentTimeMillis();
+			}
+		}
+		else if(autoState == 1.5) {
+			drive.update(0, 0, 0, false);
+			if(System.currentTimeMillis() - initialTime > 500) {
+				leftEncoder.getEncoder().reset();
+				rightEncoder.getEncoder().reset();
+				autoState = 2;
+			}
+		}
+		else if(autoState == 2) {
+			//0.7
+			drive.update(0.5, 0.5, 0, false);
+			if(System.currentTimeMillis() - initialTime > 3000) {
+				autoState = 2.5;
+				initialTime = System.currentTimeMillis();
+			}
+		}
+		else if(autoState == 2.5) {
+			drive.update(0, 0, 0, false);
+			if(System.currentTimeMillis() - initialTime > 500) {
+				initialTime = System.currentTimeMillis();
+				autoState = 3;
+			}
+		}
+		else if(autoState == 3) {
+			drive.update(0, 0, 0, false);
+			if(switchSide.equals(Side.RIGHT)){
+				conveyor.rampTo(-0.6);
+			}
+			if(System.currentTimeMillis() - initialTime > 3000) {
+				autoState = 4;
+			}
+		}
+		else if(autoState == 4) {
+			conveyor.rampTo(0);
+			drive.update(0, 0, 0, false);
+		}
+	}
+	
+	public void leftAcrossAuto() {
+		
+	}
+	
+	public void rightStraightAuto() {
+		if(autoState == 0) {
+			drive.update(0.7 - (leftEncoder.getInches() - rightEncoder.getInches())/15 - leftEncoder.getInches()/1000, 0.7 - (rightEncoder.getInches() - leftEncoder.getInches())/15 - rightEncoder.getInches()/1000, 0, false);
+			if(leftEncoder.getInches() > 148 || rightEncoder.getInches() > 148) {
+				autoState = 0.5;
+				initialTime = System.currentTimeMillis();
+			}
+		}
+		else if(autoState == 0.5) {
+			drive.update(0, 0, 0, false);
+			if(System.currentTimeMillis() - initialTime > 500) {
+				turnError = (leftEncoder.getInches() - rightEncoder.getInches())/2;
+				autoState = 1;
+				leftEncoder.getEncoder().reset();
+				rightEncoder.getEncoder().reset();
+			}
+		}
+		else if(autoState == 1) {
+			//0.55
+			drive.update(-0.55 - (leftEncoder.getInches() + rightEncoder.getInches())/25, 0.55 - (rightEncoder.getInches() + leftEncoder.getInches())/25, 0, false);
+			if(leftEncoder.getInches() < -20-turnError || rightEncoder.getInches() > 20+turnError) {
+				autoState = 1.5;
+				initialTime = System.currentTimeMillis();
+			}
+		}
+		else if(autoState == 1.5) {
+			drive.update(0, 0, 0, false);
+			if(System.currentTimeMillis() - initialTime > 500) {
+				leftEncoder.getEncoder().reset();
+				rightEncoder.getEncoder().reset();
+				autoState = 2;
+			}
+		}
+		else if(autoState == 2) {
+			//0.7
+			drive.update(0.5, 0.5, 0, false);
+			if(System.currentTimeMillis() - initialTime > 3000) {
+				autoState = 2.5;
+				initialTime = System.currentTimeMillis();
+			}
+		}
+		else if(autoState == 2.5) {
+			drive.update(0, 0, 0, false);
+			if(System.currentTimeMillis() - initialTime > 500) {
+				initialTime = System.currentTimeMillis();
+				autoState = 3;
+			}
+		}
+		else if(autoState == 3) {
+			drive.update(0, 0, 0, false);
+			if(switchSide.equals(Side.RIGHT)){
+				conveyor.rampTo(-0.6);
+			}
+			if(System.currentTimeMillis() - initialTime > 3000) {
+				autoState = 4;
+			}
+		}
+		else if(autoState == 4) {
+			conveyor.rampTo(0);
+			drive.update(0, 0, 0, false);
+		}
+	}
+	
+	public void rightAcrossAuto() {
+		
+	}
+	
+	public void centerLeftAuto() {
+		
+	}
+	
+	public void centerRightAuto() {
+		if(System.currentTimeMillis() - initialTime < 3000) {
+			drive.update(0.7, 0.7, 0, false);
+		}
+		else if(System.currentTimeMillis() - initialTime < 6000) {
+			drive.update(0, 0, 0, false);
+			conveyor.rampTo(-0.6);
+		}
+		else {
+			conveyor.rampTo(0);
+		}
+	}
+	
+	public void driveStraightAuto() {
+		if(System.currentTimeMillis() - initialTime < 3000) {
+			drive.update(0.7, 0.7, 0, false);
+		}
+		else {
+			conveyor.rampTo(0);
+		}
 	}
 }
 
