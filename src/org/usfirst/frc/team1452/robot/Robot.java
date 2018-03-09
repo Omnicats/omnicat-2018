@@ -16,6 +16,7 @@ import mechanism.drive.PIDDrive;
 import mechanism.sensor.CubeDetector;
 import mechanism.sensor.GripPipeline;
 import mechanism.sensor.RangefinderArray;
+import util.controlSystem.PID.PID;
 import util.motor.basic.BasicMotor;
 import util.motor.basic.CANTalon;
 import util.motor.basic.PWMTalon;
@@ -33,10 +34,15 @@ import util.sensor.digital.DigitalEncoder;
  * directory.
  */
 public class Robot extends IterativeRobot {
+	final double AUTO_SPEED = 0.6;
+	final double AUTO_TURN = 0.5;
+	final double DEGREES_TO_INCHES = 2/9;
 	SendableChooser<Side> chooser = new SendableChooser<>();
 	Joystick driveJ = new Joystick(0);
 	Joystick mechJ = new Joystick(1);
 	PIDDrive drive;
+	PID driveStraightPID;
+	PID turnPID;
 	TankDrive testDrive;
 	Gyro gyro;
 	Rangefinder rangefinder;
@@ -77,9 +83,8 @@ public class Robot extends IterativeRobot {
 		detector = new CubeDetector(driveJ);
 		mandibles = new Mandibles(0.2, new CANTalon[] {new CANTalon(0, false), new CANTalon(1, true)});
 		conveyor = new Conveyor(0.2, 0.2, new CANTalon[] {new CANTalon(7, true), new CANTalon(6, false), new CANTalon(11, true)});
-		gyro = new Gyro(0);
-		gyro.getGyro().reset();
-		gyro.getGyro().calibrate();
+		driveStraightPID = new PID("Drive Straight", 0.6, 0.01, 0.11);
+		turnPID = new PID("Turn", 0.6, 0.01, 0.11);
 		leftEncoder = new DigitalEncoder(2, 3);
 		leftEncoder.setRotationsPerInch(-13.2629);
 		rightEncoder = new DigitalEncoder(0, 1);
@@ -97,7 +102,6 @@ public class Robot extends IterativeRobot {
 		drive.getDrive().setDriveReversed(true);
 		autoState = 0;
 		turnError = 0;
-		gyro.getGyro().reset();
 		leftEncoder.getEncoder().reset();
 		rightEncoder.getEncoder().reset();
 		if(driveMode.equals(Mode.JAMIE_MODE)) {
@@ -393,7 +397,9 @@ public class Robot extends IterativeRobot {
 	}
 	
 	public void centerLeftAuto() {
-		
+		if(autoState == 0) {
+			
+		}
 	}
 	
 	public void centerRightAuto() {
@@ -417,5 +423,40 @@ public class Robot extends IterativeRobot {
 			conveyor.rampTo(0);
 		}
 	}
+	
+	public boolean driveStraightInches(double inches) {
+		if((leftEncoder.getInches() + rightEncoder.getInches())/2 >= inches) {
+			driveStraightPID.reset();
+			return true;
+		}
+		else {
+			drive.arcadeUpdate(AUTO_SPEED, driveStraightPID.update(rightEncoder.getInches() - leftEncoder.getInches()));
+			return false;
+		}
+	}
+	
+	public boolean turnDegrees(double degrees) {
+		if(degrees >= 0) {
+			if((leftEncoder.getInches() - rightEncoder.getInches())/2 >= degrees * DEGREES_TO_INCHES) {
+				turnPID.reset();
+				return true;
+			}
+			else {
+				double error = turnPID.update(leftEncoder.getInches() + rightEncoder.getInches());
+				drive.update(AUTO_TURN - error, -AUTO_TURN - error, 0, false);
+				return false;
+			}
+		}
+		else {
+			if((leftEncoder.getInches() - rightEncoder.getInches())/2 <= degrees * DEGREES_TO_INCHES) {
+				turnPID.reset();
+				return true;
+			}
+			else {
+				double error = turnPID.update(leftEncoder.getInches() + rightEncoder.getInches());
+				drive.update(-AUTO_TURN - error, AUTO_TURN - error, 0, false);
+				return false;
+			}
+		}
+	}
 }
-
