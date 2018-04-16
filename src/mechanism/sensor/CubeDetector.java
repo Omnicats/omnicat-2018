@@ -31,6 +31,7 @@ public class CubeDetector {
 	private final Object imgLock = new Object();
 	private double visionFinding = 0.0;
 	private double visionRunning = 0.0;
+	private boolean cameraFront;
 	private Joystick j;
 
     
@@ -56,16 +57,20 @@ public class CubeDetector {
         	
         	VideoSink server;
         	server = CameraServer.getInstance().getServer();
+        	server.setSource(camera0);
+        	cameraFront = true;
         	int cameraRunning = 0;
 			
 			while (!Thread.interrupted()) {
-				if(j.getRawButton(3)){
+				if(j.getRawButtonPressed(5)){
 					SmartDashboard.putString("camera", "front");
 					server.setSource(camera0);
+					cameraFront = true;
 				}
-				else if(j.getRawButton(4)){
+				else if(j.getRawButtonPressed(7)){
 					SmartDashboard.putString("camera", "back");
 					server.setSource(camera1);
+					cameraFront = false;
 				}
 				synchronized(imgLock) {
 					if (cvSink0.grabFrame(mat) == 0) {

@@ -16,9 +16,20 @@ public class DigitalEncoder {
 		this.rotationsPerInch = rotationsPerInch;
 	}
 
+	private double rotationsPerDegree;
+	public double getRotationsPerDegree() {
+		return rotationsPerDegree;
+	}
+	public void setRotationsPerDegree(double rotationsPerDegree) {
+		this.rotationsPerDegree = rotationsPerDegree;
+	}
 	
 	public DigitalEncoder(int port0, int port1) {
 		encoder = new Encoder(port0, port1);
+	}
+	
+	public double getDegrees() {
+		return encoder.getDistance()/rotationsPerDegree;
 	}
 
 	public double getInches() {
