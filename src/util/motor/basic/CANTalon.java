@@ -5,6 +5,7 @@ import com.ctre.phoenix.motorcontrol.can.WPI_TalonSRX;
 public class CANTalon extends BasicMotor{
 	public CANTalon(int port, boolean inverted) {
 		super(new WPI_TalonSRX(port), inverted);
+		WPI_TalonSRX motor = new WPI_TalonSRX(0);
 	}
 	
 	public static CANTalon[] motorsFromInt(int... ports) {
