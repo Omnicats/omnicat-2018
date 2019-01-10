@@ -138,5 +138,9 @@ public class CubeDetector {
     	}
     	return centerX;
     }
+    
+    public double getError() {
+    	return (getCenterX() * 2 - IMG_WIDTH)/IMG_WIDTH;
+    }
 
 }

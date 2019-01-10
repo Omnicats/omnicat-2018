@@ -71,8 +71,10 @@ public abstract class Drive{
 		for(int i = motorList.size()/2; i < motorList.size(); i++) {
 			rightMotorList.add(motorList.get(i));
 		}
-		
 		this.maxAccel = maxAccel;
+		for(BasicMotor m : motorList) {
+			m.setMaxAccel(maxAccel);
+		}
 	}
 	
 	public Drive(double maxAccel, BasicMotor ...motors) {

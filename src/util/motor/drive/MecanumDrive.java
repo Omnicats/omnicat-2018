@@ -19,14 +19,14 @@ public class MecanumDrive extends Drive {
 	}
 	
 	public void update(double xSpeed, double ySpeed, double zRotation, double gyroAngle) {
-	    Vector2d input = new Vector2d(ySpeed, xSpeed);
+	    Vector2d input = new Vector2d(xSpeed, ySpeed);
 	    input.rotate(-gyroAngle);
 
 	    double[] wheelSpeeds = new double[4];
-	    wheelSpeeds[0] = input.x + input.y + zRotation;
-	    wheelSpeeds[1] = -input.x + input.y + zRotation;
-	    wheelSpeeds[2] = input.x - input.y + zRotation;
-	    wheelSpeeds[3] = -input.x - input.y + zRotation;
+	    wheelSpeeds[0] = input.x - input.y + zRotation;
+	    wheelSpeeds[1] = -input.x - input.y + zRotation;
+	    wheelSpeeds[2] = -input.x - input.y - zRotation;
+	    wheelSpeeds[3] = input.x - input.y - zRotation;
 
 	    normalize(wheelSpeeds);
 	    
